@@ -58,7 +58,7 @@ def get_args_parser():
     parser.add_argument('--drop_path', type=float, default=0, metavar='PCT',
                         help='Drop path rate (default: 0.0)')
     parser.add_argument('--input_size', default=224, type=int,
-                        help='image input size')
+                        help='image input size') # 224 256
     parser.add_argument('--layer_scale_init_value', default=1e-6, type=float,
                         help="Layer scale initial values")
 
@@ -85,6 +85,9 @@ def get_args_parser():
         weight decay. We use a cosine schedule for WD and using a larger decay by
         the end of training improves performance for ViTs.""")
 
+    # criterion 用于 (loss function)
+
+    # Training  parameters
     parser.add_argument('--lr', type=float, default=4e-3, metavar='LR',
                         help='learning rate (default: 4e-3), with total batch size 4096')
     parser.add_argument('--layer_decay', type=float, default=1.0)
@@ -474,6 +477,13 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('ConvNeXt training and evaluation script', parents=[get_args_parser()])
     args = parser.parse_args()
+    # args.data_path
     if args.output_dir:
         Path(args.output_dir).mkdir(parents=True, exist_ok=True)
     main(args)
+
+
+# y = a*x^2 + b*x + c
+# x = [1, 2, 3]
+# y = [4, 5, 6]
+# 迭代1步（step），就直接能得出来a、b、c
