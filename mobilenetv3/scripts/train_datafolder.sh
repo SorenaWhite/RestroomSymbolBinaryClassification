@@ -1,0 +1,14 @@
+python main.py \
+--model mobilenet_v3_large \
+--epochs 450 \
+--batch_size 2 \
+--lr 4e-3 \
+--update_freq 2 \
+--model_ema false \
+--model_ema_eval false \
+--use_amp true \
+--data_path ./data/train \
+--eval_data_path ./data/val \
+--data_set image_folder \
+--output_dir ./weights  \
+--nb_classes 2
