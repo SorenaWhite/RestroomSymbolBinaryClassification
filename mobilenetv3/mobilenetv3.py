@@ -8,7 +8,6 @@ import torch.nn.functional as F
 from torch.nn import init
 
 
-
 class hswish(nn.Module):
     def forward(self, x):
         out = x * F.relu6(x + 3, inplace=True) / 6
@@ -89,7 +88,6 @@ class Block(nn.Module):
         if self.skip is not None:
             skip = self.skip(skip)
         return self.act3(out + skip)
-
 
 
 class MobileNetV3_Small(nn.Module):
