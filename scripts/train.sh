@@ -3,7 +3,7 @@ python train.py \
 --if_llm false \
 --resume mobilemlp/weights/450_act3_mobilenetv3_large.pth \
 --epochs 450 \
---batch_size 1 \
+--batch_size 2 \
 --lr 4e-3 \
 --update_freq 2 \
 --model_ema false \
