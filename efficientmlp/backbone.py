@@ -59,6 +59,13 @@ class EfficientDetBackbone(nn.Module):
 
         self.backbone_net = EfficientNet(self.backbone_compound_coef[compound_coef], load_weights)
 
+        self.gap = nn.AdaptiveAvgPool2d(1)
+        self.linear3 = nn.Linear(88, 96, bias=False)
+        self.bn3 = nn.BatchNorm1d(1280)
+        self.hs3 = nn.Hardswish(inplace=True)
+        self.drop = nn.Dropout(0.2)
+        self.linear4 = nn.Linear(96, num_classes)
+
     def freeze_bn(self):
         for m in self.modules():
             if isinstance(m, nn.BatchNorm2d):
@@ -72,12 +79,16 @@ class EfficientDetBackbone(nn.Module):
         features = (p3, p4, p5)
 
         features = self.bifpn(features)
+        features = features[-1]
+        out = self.gap(features).flatten(1)
+        out = self.drop(self.hs3(self.bn3(self.linear3(out))))
+        out = self.linear4(out)
 
         # regression = self.regressor(features)
         # classification = self.classifier(features)
         # anchors = self.anchors(inputs, inputs.dtype)
 
-        return features[-1] #, regression, classification, anchors
+        return features[-1], out  # , regression, classification, anchors
 
     def init_backbone(self, path):
         state_dict = torch.load(path)
