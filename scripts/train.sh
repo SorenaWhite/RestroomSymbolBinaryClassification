@@ -12,3 +12,4 @@ python train.py \
 --data_root /root/autodl-tmp/mmlrestroomsign/ \
 --output_dir /root/autodl-tmp/output/  \
 --nb_classes 2
+--enable_wandb
