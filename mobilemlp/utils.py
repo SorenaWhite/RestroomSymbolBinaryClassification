@@ -463,9 +463,13 @@ def auto_load_model(args, model, model_without_ddp, optimizer, loss_scaler, mode
         if args.resume.startswith('https'):
             checkpoint = torch.hub.load_state_dict_from_url(
                 args.resume, map_location='cpu', check_hash=True)
+            model_without_ddp.load_state_dict(checkpoint)
         else:
             checkpoint = torch.load(args.resume, map_location='cpu')
-        model_without_ddp.load_state_dict(checkpoint, strict=False)  # checkpoint['model']
+            del checkpoint['linear4.weight']
+            del checkpoint['linear4.bias']
+            model_without_ddp.load_state_dict(checkpoint, strict=False)  # checkpoint['model']
+
         print("Resume checkpoint %s" % args.resume)
         if 'optimizer' in checkpoint and 'epoch' in checkpoint:
             optimizer.load_state_dict(checkpoint['optimizer'])
