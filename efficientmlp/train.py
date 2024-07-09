@@ -280,16 +280,16 @@ def train(opt):
                 loss_classification_ls = []
                 for iter, data in enumerate(val_generator):
                     with torch.no_grad():
-                        imgs = data['img']
-                        annot = data['annot']
+                        male_sign_tensor, female_sign_tensor = data
 
                         if params.num_gpus == 1:
-                            imgs = imgs.cuda()
-                            annot = annot.cuda()
+                            male_sign_tensor = male_sign_tensor.cuda()
+                            female_sign_tensor = female_sign_tensor.cuda()
 
-                        cls_loss, reg_loss = model(imgs, annot, obj_list=params.obj_list)
-                        cls_loss = cls_loss.mean()
-                        reg_loss = reg_loss.mean()
+                        features, regression, classification, anchors = model(male_sign_tensor)
+                        features, regression, classification, anchors = model(female_sign_tensor)
+                        # cls_loss = cls_loss.mean()
+                        # reg_loss = reg_loss.mean()
 
                         loss = cls_loss + reg_loss
                         if loss == 0 or not torch.isfinite(loss):
