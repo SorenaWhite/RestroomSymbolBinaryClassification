@@ -1,10 +1,49 @@
 import os
 import torch
 import numpy as np
-
+import glob
+from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 from pycocotools.coco import COCO
 import cv2
+
+
+class MMLRestroomSign(Dataset):
+    def __init__(self, data_path, transform, is_train=True):
+        if is_train:
+            train_root = os.path.join(data_path, "train")
+            self.symbol_pairs = self.read_from_disk(train_root)
+        else:
+            val_root = os.path.join(data_path, "val")
+            self.symbol_pairs = self.read_from_disk(val_root)
+
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.symbol_pairs)
+
+    def read_from_disk(self, image_folder):
+        all_paths = glob.glob(os.path.join(image_folder, "*.png"))
+        all_names = [os.path.basename(os.path.splitext(name)[0]).split("_")[0] for name in all_paths]
+        all_names = list(set(all_names))
+
+        pairs = []
+        for name in all_names:
+            pairs.append([os.path.join(image_folder, f"{name}_0.png"), os.path.join(image_folder, f"{name}_1.png")])
+        return pairs
+
+    def get_data_with_llm(self, item):
+        pass
+
+    def get_data_from_raw(self, item):
+        male_sign_path, female_sign_path = self.symbol_pairs[item]
+        male_sign_tensor = self.transform(Image.open(male_sign_path).convert("RGB"))
+        female_sign_tensor = self.transform(Image.open(female_sign_path).convert("RGB"))
+        return male_sign_tensor, female_sign_tensor
+
+
+    def __getitem__(self, item):
+        return self.get_data_from_raw(item)
 
 
 class CocoDataset(Dataset):

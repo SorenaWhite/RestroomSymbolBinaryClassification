@@ -17,7 +17,7 @@ from torchvision import transforms
 from tqdm.autonotebook import tqdm
 
 from backbone import EfficientDetBackbone
-from efficientdet.dataset import CocoDataset, Resizer, Normalizer, Augmenter, collater
+from efficientdet.dataset import CocoDataset, Resizer, Normalizer, Augmenter, collater, MMLRestroomSign
 from efficientdet.loss import FocalLoss
 from utils.sync_batchnorm import patch_replication_callback
 from utils.utils import replace_w_sync_bn, CustomDataParallel, get_last_weights, init_weights, boolean_string
@@ -110,13 +110,21 @@ def train(opt):
                   'num_workers': opt.num_workers}
 
     input_sizes = [512, 640, 768, 896, 1024, 1280, 1280, 1536, 1536]
-    training_set = CocoDataset(root_dir=os.path.join(opt.data_path, params.project_name), set=params.train_set,
-                               transform=transforms.Compose([Normalizer(mean=params.mean, std=params.std),
+    # training_set = CocoDataset(root_dir=os.path.join(opt.data_path, params.project_name), set=params.train_set,
+    #                            transform=transforms.Compose([Normalizer(mean=params.mean, std=params.std),
+    #                                                          Augmenter(),
+    #                                                          Resizer(input_sizes[opt.compound_coef])]))
+    training_set = MMLRestroomSign(opt.data_path, is_train=True, transform=transforms.Compose([Normalizer(mean=params.mean, std=params.std),
                                                              Augmenter(),
                                                              Resizer(input_sizes[opt.compound_coef])]))
+
+
     training_generator = DataLoader(training_set, **training_params)
 
-    val_set = CocoDataset(root_dir=os.path.join(opt.data_path, params.project_name), set=params.val_set,
+    # val_set = CocoDataset(root_dir=os.path.join(opt.data_path, params.project_name), set=params.val_set,
+    #                       transform=transforms.Compose([Normalizer(mean=params.mean, std=params.std),
+    #                                                     Resizer(input_sizes[opt.compound_coef])]))
+    val_set = MMLRestroomSign(opt.data_path, is_train=False,
                           transform=transforms.Compose([Normalizer(mean=params.mean, std=params.std),
                                                         Resizer(input_sizes[opt.compound_coef])]))
     val_generator = DataLoader(val_set, **val_params)
@@ -176,7 +184,7 @@ def train(opt):
     writer = SummaryWriter(opt.log_path + f'/{datetime.datetime.now().strftime("%Y%m%d-%H%M%S")}/')
 
     # warp the model with loss function, to reduce the memory usage on gpu0 and speedup
-    model = ModelWithLoss(model, debug=opt.debug)
+    # model = ModelWithLoss(model, debug=opt.debug)  TODO
 
     if params.num_gpus > 0:
         model = model.cuda()
@@ -213,17 +221,18 @@ def train(opt):
                     progress_bar.update()
                     continue
                 try:
-                    imgs = data['img']
-                    annot = data['annot']
+                    male_sign_tensor, female_sign_tensor = data
 
                     if params.num_gpus == 1:
                         # if only one gpu, just send it to cuda:0
                         # elif multiple gpus, send it to multiple gpus in CustomDataParallel, not here
-                        imgs = imgs.cuda()
-                        annot = annot.cuda()
+                        male_sign_tensor = male_sign_tensor.cuda()
+                        female_sign_tensor = female_sign_tensor.cuda()
 
                     optimizer.zero_grad()
-                    cls_loss, reg_loss = model(imgs, annot, obj_list=params.obj_list)
+                    features, regression, classification, anchors = model(male_sign_tensor)
+                    features, regression, classification, anchors = model(female_sign_tensor)
+
                     cls_loss = cls_loss.mean()
                     reg_loss = reg_loss.mean()
 
