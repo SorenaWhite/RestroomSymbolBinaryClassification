@@ -17,7 +17,7 @@ from torchvision import transforms
 from tqdm.autonotebook import tqdm
 
 from backbone import EfficientDetBackbone
-from efficientdet.dataset import CocoDataset, Resizer, Normalizer, Augmenter, collater, MMLRestroomSign
+from efficientdet.dataset import CocoDataset, Resizer, Normalizer, collater, MMLRestroomSign
 from efficientdet.loss import FocalLoss
 from utils.sync_batchnorm import patch_replication_callback
 from utils.utils import replace_w_sync_bn, CustomDataParallel, get_last_weights, init_weights, boolean_string
@@ -114,9 +114,9 @@ def train(opt):
     #                            transform=transforms.Compose([Normalizer(mean=params.mean, std=params.std),
     #                                                          Augmenter(),
     #                                                          Resizer(input_sizes[opt.compound_coef])]))
-    training_set = MMLRestroomSign(opt.data_path, is_train=True, transform=transforms.Compose([Normalizer(mean=params.mean, std=params.std),
-                                                             Augmenter(),
-                                                             Resizer(input_sizes[opt.compound_coef])]))
+    training_set = MMLRestroomSign(opt.data_path, is_train=True,
+                                   transform=transforms.Compose([Normalizer(mean=params.mean, std=params.std),
+                                                                 Resizer(input_sizes[opt.compound_coef])]))
 
 
     training_generator = DataLoader(training_set, **training_params)
