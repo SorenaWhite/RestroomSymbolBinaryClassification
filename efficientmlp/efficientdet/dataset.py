@@ -32,13 +32,19 @@ class MMLRestroomSign(Dataset):
             pairs.append([os.path.join(image_folder, f"{name}_0.png"), os.path.join(image_folder, f"{name}_1.png")])
         return pairs
 
+    def load_image(self, path):
+        img = cv2.imread(path)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+        return img.astype(np.float32) / 255.
+
     def get_data_with_llm(self, item):
         pass
 
     def get_data_from_raw(self, item):
         male_sign_path, female_sign_path = self.symbol_pairs[item]
-        male_sign_tensor = self.transform(Image.open(male_sign_path).convert("RGB"))
-        female_sign_tensor = self.transform(Image.open(female_sign_path).convert("RGB"))
+        male_sign_tensor = self.transform(self.load_image(male_sign_path))
+        female_sign_tensor = self.transform(self.load_image(female_sign_path))
         return male_sign_tensor, female_sign_tensor
 
 
@@ -171,6 +177,11 @@ class Resizer(object):
 
 
         return new_image
+
+
+class ToTensor(object):
+    def __call__(self, sample):
+        return torch.from_numpy(sample).to(torch.float32)
 
 
 
