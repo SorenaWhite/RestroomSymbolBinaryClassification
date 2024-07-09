@@ -1,0 +1,14 @@
+python train.py \
+--model mobilemlp_large \
+--if_llm false \
+--resume mobilemlp/weights/450_act3_mobilenetv3_large.pth \
+--epochs 450 \
+--batch_size 2 \
+--lr 4e-3 \
+--update_freq 2 \
+--model_ema false \
+--model_ema_eval false \
+--use_amp true \
+--data_root /root/autodl-tmp/mmlrestroomsign/ \
+--output_dir /root/autodl-tmp/output/  \
+--nb_classes 2
