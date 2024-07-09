@@ -182,4 +182,4 @@ class Normalizer(object):
 
     def __call__(self, sample):
 
-        return ((sample.astype(np.float32) - self.mean) / self.std)
+        return ((sample - self.mean) / self.std)
