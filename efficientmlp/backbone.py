@@ -61,7 +61,7 @@ class EfficientDetBackbone(nn.Module):
 
         self.gap = nn.AdaptiveAvgPool2d(1)
         self.linear3 = nn.Linear(88, 96, bias=False)
-        self.bn3 = nn.BatchNorm1d(1280)
+        self.bn3 = nn.BatchNorm1d(96)
         self.hs3 = nn.Hardswish(inplace=True)
         self.drop = nn.Dropout(0.2)
         self.linear4 = nn.Linear(96, num_classes)
