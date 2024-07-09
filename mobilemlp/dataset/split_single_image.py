@@ -22,9 +22,9 @@ def png2jpg():
 
 
 def read_json():
-    json_root = r"E:\media\split"
-    output_root = r"E:\media\output"
-    prev_id = 210
+    json_root = r"C:\Users\unaguo\Pictures\split20240708"
+    output_root = r"C:\Users\unaguo\Pictures\output20240708"
+    prev_id = 496
     for json_path in glob.glob(os.path.join(json_root, "*.json")):
         with open(json_path, encoding="utf-8") as fp:
             data = json.load(fp)
@@ -35,7 +35,9 @@ def read_json():
                 point0 = list(map(int, point0))
                 point1 = list(map(int, point1))
                 x0, x1, y0, y1 = min(point0[0], point1[0]), max(point0[0], point1[0]), min(point0[1], point1[1]), max(point0[1], point1[1])
-                full_image = cv2.imread(os.path.splitext(json_path)[0]+".jpg")
+
+                ext = os.path.splitext(data["imagePath"])[-1]
+                full_image = cv2.imread(os.path.splitext(json_path)[0]+ext)
                 if shape["label"] == "male":
                     target_path = os.path.join(output_root, f"{prev_id}_0.png")
                 else:
