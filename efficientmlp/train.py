@@ -338,7 +338,7 @@ def save_checkpoint(model, name):
     if isinstance(model, CustomDataParallel):
         torch.save(model.module.model.state_dict(), os.path.join(opt.saved_path, name))
     else:
-        torch.save(model.model.state_dict(), os.path.join(opt.saved_path, name))
+        torch.save(model.state_dict(), os.path.join(opt.saved_path, name))
 
 
 if __name__ == '__main__':
