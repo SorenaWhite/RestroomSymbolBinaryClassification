@@ -15,7 +15,7 @@ from torch import nn
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from tqdm.autonotebook import tqdm
-
+from timm.loss import LabelSmoothingCrossEntropy
 from backbone import EfficientDetBackbone
 from efficientdet.dataset import Resizer, Normalizer, ToTensor, MMLRestroomSign
 from efficientdet.loss import FocalLoss
@@ -49,6 +49,7 @@ def get_args():
     parser.add_argument('--save_interval', type=int, default=500, help='Number of steps between saving')
     parser.add_argument('--es_min_delta', type=float, default=0.0,
                         help='Early stopping\'s parameter: minimum change loss to qualify as an improvement')
+    parser.add_argument('--smoothing', type=float, default=0.2, help='smoothing')
     parser.add_argument('--es_patience', type=int, default=0,
                         help='Early stopping\'s parameter: number of epochs with no improvement after which training will be stopped. Set to 0 to disable this technique.')
     parser.add_argument('--data_path', type=str, default='datasets/', help='the root folder of dataset')
@@ -204,6 +205,9 @@ def train(opt):
 
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=3, verbose=True)
 
+    criterion_label = LabelSmoothingCrossEntropy(smoothing=opt.smoothing)
+    criterion_feat = torch.nn.MSELoss()
+
     epoch = 0
     best_loss = 1e5
     best_epoch = 0
@@ -234,13 +238,13 @@ def train(opt):
                         female_sign_tensor = female_sign_tensor.cuda()
 
                     optimizer.zero_grad()
-                    features,  = model(male_sign_tensor)
-                    features,  = model(female_sign_tensor)
+                    male_feat, male_out = model(male_sign_tensor)
+                    female_feat, female_out = model(female_sign_tensor)
+                    loss_label = criterion_label(male_out, torch.zeros((male_sign_tensor.shape[0], ), dtype=torch.int64).cuda()) \
+                                 + criterion_label(female_out, torch.ones((female_sign_tensor.shape[0],), dtype=torch.int64).cuda())
+                    loss_feat = 1 / criterion_feat(male_feat, female_feat)
+                    loss = loss_label + 2 * loss_feat
 
-                    cls_loss = cls_loss.mean()
-                    reg_loss = reg_loss.mean()
-
-                    loss = cls_loss + reg_loss
                     if loss == 0 or not torch.isfinite(loss):
                         continue
 
@@ -286,12 +290,15 @@ def train(opt):
                             male_sign_tensor = male_sign_tensor.cuda()
                             female_sign_tensor = female_sign_tensor.cuda()
 
-                        features,  = model(male_sign_tensor)
-                        features,  = model(female_sign_tensor)
-                        # cls_loss = cls_loss.mean()
-                        # reg_loss = reg_loss.mean()
+                        male_feat, male_out = model(male_sign_tensor)
+                        female_feat, female_out = model(female_sign_tensor)
+                        loss_label = criterion_label(male_out, torch.zeros((male_sign_tensor.shape[0],),
+                                                                           dtype=torch.int64).cuda()) \
+                                     + criterion_label(female_out, torch.ones((female_sign_tensor.shape[0],),
+                                                                              dtype=torch.int64).cuda())
+                        loss_feat = 1 / criterion_feat(male_feat, female_feat)
+                        loss = loss_label + 2 * loss_feat
 
-                        loss = cls_loss + reg_loss
                         if loss == 0 or not torch.isfinite(loss):
                             continue
 
