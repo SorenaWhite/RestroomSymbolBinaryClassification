@@ -153,8 +153,8 @@ class Resizer(object):
         self.img_size = img_size
 
     def __call__(self, sample):
-        image, annots = sample['img'], sample['annot']
-        height, width, _ = image.shape
+        image1, image2 = sample
+        height, width, _ = image1.shape
         if height > width:
             scale = self.img_size / height
             resized_height = self.img_size
@@ -164,14 +164,16 @@ class Resizer(object):
             resized_height = int(height * scale)
             resized_width = self.img_size
 
-        image = cv2.resize(image, (resized_width, resized_height), interpolation=cv2.INTER_LINEAR)
+        image1 = cv2.resize(image1, (resized_width, resized_height), interpolation=cv2.INTER_LINEAR)
+        image2 = cv2.resize(image2, (resized_width, resized_height), interpolation=cv2.INTER_LINEAR)
 
-        new_image = np.zeros((self.img_size, self.img_size, 3))
-        new_image[0:resized_height, 0:resized_width] = image
+        new_image1 = np.zeros((self.img_size, self.img_size, 3))
+        new_image2 = np.zeros((self.img_size, self.img_size, 3))
+        new_image1[0:resized_height, 0:resized_width] = image1
+        new_image2[0:resized_height, 0:resized_width] = image2
 
-        annots[:, :4] *= scale
 
-        return {'img': torch.from_numpy(new_image).to(torch.float32), 'annot': torch.from_numpy(annots), 'scale': scale}
+        return torch.from_numpy(new_image1).to(torch.float32), torch.from_numpy(new_image2).to(torch.float32)
 
 
 
