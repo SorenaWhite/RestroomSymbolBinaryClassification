@@ -102,4 +102,5 @@ class MMLRestroomSign(Dataset):
 
 
     def __getitem__(self, item):
+        print(item)
         return self.get_data(item)
