@@ -243,7 +243,7 @@ def train(opt):
                     loss_label = criterion_label(male_out, torch.zeros((male_sign_tensor.shape[0], ), dtype=torch.int64).cuda()) \
                                  + criterion_label(female_out, torch.ones((female_sign_tensor.shape[0],), dtype=torch.int64).cuda())
                     loss_feat = 1 / criterion_feat(male_feat, female_feat)
-                    loss = loss_label + 2 * loss_feat
+                    loss = loss_label + loss_feat
 
                     if loss == 0 or not torch.isfinite(loss):
                         continue
@@ -297,7 +297,7 @@ def train(opt):
                                      + criterion_label(female_out, torch.ones((female_sign_tensor.shape[0],),
                                                                               dtype=torch.int64).cuda())
                         loss_feat = 1 / criterion_feat(male_feat, female_feat)
-                        loss = loss_label + 2 * loss_feat
+                        loss = loss_label + loss_feat
 
                         if loss == 0 or not torch.isfinite(loss):
                             continue
