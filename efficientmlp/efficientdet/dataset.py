@@ -184,6 +184,7 @@ class Normalizer(object):
         self.std = np.array([[std]])
 
     def __call__(self, sample):
+        print(sample)
         image1, image2 = sample
 
         return ((image1.astype(np.float32) - self.mean) / self.std), ((image2.astype(np.float32) - self.mean) / self.std)
