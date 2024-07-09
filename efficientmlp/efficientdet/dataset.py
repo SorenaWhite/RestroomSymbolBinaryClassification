@@ -181,7 +181,9 @@ class Resizer(object):
 
 class ToTensor(object):
     def __call__(self, sample):
-        return torch.from_numpy(sample).to(torch.float32)
+        sample = torch.from_numpy(sample).to(torch.float32)
+        sample = sample.permute(2, 0, 1)
+        return sample
 
 
 
