@@ -90,9 +90,9 @@ class Block(nn.Module):
         return self.act3(out + skip)
 
 
-class MobileNetV3_Small(nn.Module):
+class MobileMLP_Small(nn.Module):
     def __init__(self, num_classes=1000, act=nn.Hardswish):
-        super(MobileNetV3_Small, self).__init__()
+        super(MobileMLP_Small, self).__init__()
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=2, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(16)
         self.hs1 = act(inplace=True)
@@ -142,16 +142,16 @@ class MobileNetV3_Small(nn.Module):
         out = self.hs1(self.bn1(self.conv1(x)))
         out = self.bneck(out)
 
-        out = self.hs2(self.bn2(self.conv2(out)))
+        out = feat = self.hs2(self.bn2(self.conv2(out)))
         out = self.gap(out).flatten(1)
         out = self.drop(self.hs3(self.bn3(self.linear3(out))))
 
-        return self.linear4(out)
+        return feat, self.linear4(out)
 
 
-class MobileNetV3_Large(nn.Module):
-    def __init__(self, num_classes=1000, act=nn.Hardswish):
-        super(MobileNetV3_Large, self).__init__()
+class MobileMLP_Large(nn.Module):
+    def __init__(self, num_classes=2, act=nn.Hardswish):
+        super(MobileMLP_Large, self).__init__()
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=2, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(16)
         self.hs1 = act(inplace=True)
@@ -206,8 +206,8 @@ class MobileNetV3_Large(nn.Module):
         out = self.hs1(self.bn1(self.conv1(x)))
         out = self.bneck(out)
 
-        out = self.hs2(self.bn2(self.conv2(out)))
+        out = feat = self.hs2(self.bn2(self.conv2(out)))
         out = self.gap(out).flatten(1)
         out = self.drop(self.hs3(self.bn3(self.linear3(out))))
         
-        return self.linear4(out)
+        return feat, self.linear4(out)

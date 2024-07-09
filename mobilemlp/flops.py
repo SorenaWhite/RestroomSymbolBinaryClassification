@@ -1,13 +1,13 @@
 import torch
 from thop import profile, clever_format
 
-from mobilenetv3 import MobileNetV3_Small, MobileNetV3_Large
+from mobilemlp import MobileMLP_Small, MobileMLP_Large
 
 
 if __name__=="__main__":
     input = torch.randn(1, 3, 224, 224)
-    model = MobileNetV3_Small()
-    model = MobileNetV3_Large()
+    model = MobileMLP_Small()
+    model = MobileMLP_Large()
     model.eval()
 
     print(model)

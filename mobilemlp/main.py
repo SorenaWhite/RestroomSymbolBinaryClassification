@@ -1,11 +1,3 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
-
-# All rights reserved.
-
-# This source code is licensed under the license found in the
-# LICENSE file in the root directory of this source tree.
-
-
 import argparse
 import datetime
 import numpy as np
@@ -22,7 +14,7 @@ from timm.data.mixup import Mixup
 from timm.loss import LabelSmoothingCrossEntropy, SoftTargetCrossEntropy
 from timm.utils import ModelEma
 from optim_factory import create_optimizer, LayerDecayValueAssigner
-from mobilenetv3 import MobileNetV3_Small, MobileNetV3_Large
+from mobilemlp import MobileMLP_Small, MobileMLP_Large
 
 from datasets import build_dataset
 from engine import train_one_epoch, evaluate
@@ -273,9 +265,9 @@ def main(args):
             label_smoothing=args.smoothing, num_classes=args.nb_classes)
 
     if args.model == "mobilenet_v3_small":
-        model = MobileNetV3_Small()
+        model = MobileMLP_Small()
     elif args.model == "mobilenet_v3_large":
-        model = MobileNetV3_Large()
+        model = MobileMLP_Large()
 
     if args.finetune:
         if args.finetune.startswith('https'):

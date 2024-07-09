@@ -14,7 +14,7 @@ from timm.utils import accuracy, ModelEma
 
 import utils
 
-def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
+def train_one_epoch(model: torch.nn.Module, criterion_label: torch.nn.Module, criterion_feat: torch.nn.Module,
                     data_loader: Iterable, optimizer: torch.optim.Optimizer,
                     device: torch.device, epoch: int, loss_scaler, max_norm: float = 0,
                     model_ema: Optional[ModelEma] = None, mixup_fn: Optional[Mixup] = None, log_writer=None,
@@ -29,7 +29,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
 
     optimizer.zero_grad()
 
-    for data_iter_step, (samples, targets) in enumerate(metric_logger.log_every(data_loader, print_freq, header)):
+    for data_iter_step, (male_samples, female_samples) in enumerate(metric_logger.log_every(data_loader, print_freq, header)):
         step = data_iter_step // update_freq
         if step >= num_training_steps_per_epoch:
             continue
@@ -42,19 +42,29 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
                 if wd_schedule_values is not None and param_group["weight_decay"] > 0:
                     param_group["weight_decay"] = wd_schedule_values[it]
 
-        samples = samples.to(device, non_blocking=True)
-        targets = targets.to(device, non_blocking=True)
+        male_samples = male_samples.to(device, non_blocking=True)
+        female_samples = female_samples.to(device, non_blocking=True)
 
-        if mixup_fn is not None:
-            samples, targets = mixup_fn(samples, targets)
+        # if mixup_fn is not None:
+        #     samples, targets = mixup_fn(samples, targets)
 
         if use_amp:
             with torch.cuda.amp.autocast():
-                output = model(samples)
-                loss = criterion(output, targets)
+                male_feat, male_output = model(male_samples)
+                female_feat, female_output = model(female_samples)
+                male_target = torch.zeros_like(male_output)
+                female_target = torch.ones_like(female_output)
+                loss_label = criterion_label(male_output, male_target) + criterion_label(female_output, female_target)
+                loss_feat = 1/criterion_feat(male_feat, female_feat)
+                loss = loss_label + 2*loss_feat
         else: # full precision
-            output = model(samples)
-            loss = criterion(output, targets)
+            male_feat, male_output = model(male_samples)
+            female_feat, female_output = model(female_samples)
+            male_target = torch.zeros_like(male_output)
+            female_target = torch.ones_like(female_output)
+            loss_label = criterion_label(male_output, male_target) + criterion_label(female_output, female_target)
+            loss_feat = 1/criterion_feat(male_feat, female_feat)
+            loss = loss_label + 2 * loss_feat
 
         loss_value = loss.item()
 
@@ -85,7 +95,8 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
         torch.cuda.synchronize()
 
         if mixup_fn is None:
-            class_acc = (output.max(-1)[-1] == targets).float().mean()
+            class_acc = (male_output.max(-1)[-1] == 0).float().mean()  #TODO
+            class_acc += (female_output.max(-1)[-1] == 1).float().mean() #TODO
         else:
             class_acc = None
         metric_logger.update(loss=loss_value)
@@ -127,7 +138,6 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
             if use_amp:
                 wandb_logger._wandb.log({'Rank-0 Batch Wise/train_grad_norm': grad_norm}, commit=False)
             wandb_logger._wandb.log({'Rank-0 Batch Wise/global_train_step': it})
-            
 
     # gather the stats from all processes
     metric_logger.synchronize_between_processes()

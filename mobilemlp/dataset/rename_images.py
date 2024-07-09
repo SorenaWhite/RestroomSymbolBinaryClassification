@@ -5,14 +5,14 @@ import glob
 
 if __name__ == '__main__':
     # cropped images folder
-    raw_images_root = r"D:\data\Downloads\gte\wc1"
+    raw_images_root = r"E:\media\single"
 
     # sort with create time
     raw_images_list = sorted(
         glob.glob(os.path.join(raw_images_root, "*.png")),
-        key=lambda file_path: os.path.getctime(file_path))
+        key=lambda file_path: os.path.getmtime(file_path))
 
-    start_id = 24
+    start_id = 180
     is_male = True
     for image_path in raw_images_list:
         if is_male:
