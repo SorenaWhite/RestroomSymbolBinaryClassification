@@ -12,7 +12,7 @@ import torch
 from timm.data import Mixup
 from timm.utils import accuracy, ModelEma
 
-import utils
+from mobilemlp import utils
 
 def train_one_epoch(model: torch.nn.Module, criterion_label: torch.nn.Module, criterion_feat: torch.nn.Module,
                     data_loader: Iterable, optimizer: torch.optim.Optimizer,
