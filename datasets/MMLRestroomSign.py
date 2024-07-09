@@ -94,6 +94,7 @@ class MMLRestroomSign(Dataset):
         pass
 
     def get_data_from_raw(self, item):
+        print(item)
         male_sign_path, female_sign_path = self.symbol_pairs[item]
         male_sign_tensor = self.transform(Image.open(male_sign_path).convert("RGB"))
         female_sign_tensor = self.transform(Image.open(female_sign_path).convert("RGB"))
@@ -102,5 +103,4 @@ class MMLRestroomSign(Dataset):
 
 
     def __getitem__(self, item):
-        print(item)
         return self.get_data(item)
