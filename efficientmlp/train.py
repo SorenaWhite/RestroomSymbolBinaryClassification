@@ -255,12 +255,12 @@ def train(opt):
                     epoch_loss.append(float(loss))
 
                     progress_bar.set_description(
-                        'Step: {}. Epoch: {}/{}. Iteration: {}/{}. Cls loss: {:.5f}. Reg loss: {:.5f}. Total loss: {:.5f}'.format(
-                            step, epoch, opt.num_epochs, iter + 1, num_iter_per_epoch, cls_loss.item(),
-                            reg_loss.item(), loss.item()))
+                        'Step: {}. Epoch: {}/{}. Iteration: {}/{}. Label loss: {:.5f}. Feat loss: {:.5f}. Total loss: {:.5f}'.format(
+                            step, epoch, opt.num_epochs, iter + 1, num_iter_per_epoch, loss_label.item(),
+                            loss_feat.item(), loss.item()))
                     writer.add_scalars('Loss', {'train': loss}, step)
-                    writer.add_scalars('Regression_loss', {'train': reg_loss}, step)
-                    writer.add_scalars('Classfication_loss', {'train': cls_loss}, step)
+                    writer.add_scalars('Feat_loss', {'train': loss_feat}, step)
+                    writer.add_scalars('Label_loss', {'train': loss_label}, step)
 
                     # log learning_rate
                     current_lr = optimizer.param_groups[0]['lr']
@@ -280,8 +280,8 @@ def train(opt):
 
             if epoch % opt.val_interval == 0:
                 model.eval()
-                loss_regression_ls = []
-                loss_classification_ls = []
+                loss_feat_ls = []
+                loss_label_ls = []
                 for iter, data in enumerate(val_generator):
                     with torch.no_grad():
                         male_sign_tensor, female_sign_tensor = data
@@ -302,19 +302,19 @@ def train(opt):
                         if loss == 0 or not torch.isfinite(loss):
                             continue
 
-                        loss_classification_ls.append(cls_loss.item())
-                        loss_regression_ls.append(reg_loss.item())
+                        loss_label_ls.append(loss_label.item())
+                        loss_feat_ls.append(loss_feat.item())
 
-                cls_loss = np.mean(loss_classification_ls)
-                reg_loss = np.mean(loss_regression_ls)
-                loss = cls_loss + reg_loss
+                label_loss = np.mean(loss_label_ls)
+                feat_loss = np.mean(loss_feat_ls)
+                loss = label_loss + feat_loss
 
                 print(
-                    'Val. Epoch: {}/{}. Classification loss: {:1.5f}. Regression loss: {:1.5f}. Total loss: {:1.5f}'.format(
-                        epoch, opt.num_epochs, cls_loss, reg_loss, loss))
+                    'Val. Epoch: {}/{}. Label loss: {:1.5f}. Feat loss: {:1.5f}. Total loss: {:1.5f}'.format(
+                        epoch, opt.num_epochs, label_loss, feat_loss, loss))
                 writer.add_scalars('Loss', {'val': loss}, step)
-                writer.add_scalars('Regression_loss', {'val': reg_loss}, step)
-                writer.add_scalars('Classfication_loss', {'val': cls_loss}, step)
+                writer.add_scalars('Feat_loss', {'val': feat_loss}, step)
+                writer.add_scalars('Label_loss', {'val': label_loss}, step)
 
                 if loss + opt.es_min_delta < best_loss:
                     best_loss = loss
