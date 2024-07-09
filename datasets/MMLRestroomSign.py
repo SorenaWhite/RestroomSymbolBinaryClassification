@@ -103,4 +103,4 @@ class MMLRestroomSign(Dataset):
 
 
     def __getitem__(self, item):
-        return self.get_data(item)
+        return self.get_data_from_raw(item)
