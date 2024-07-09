@@ -72,12 +72,12 @@ class EfficientDetBackbone(nn.Module):
         features = (p3, p4, p5)
 
         features = self.bifpn(features)
-        print(features[-1].shape)
-        regression = self.regressor(features)
-        classification = self.classifier(features)
-        anchors = self.anchors(inputs, inputs.dtype)
 
-        return features, regression, classification, anchors
+        # regression = self.regressor(features)
+        # classification = self.classifier(features)
+        # anchors = self.anchors(inputs, inputs.dtype)
+
+        return features[-1] #, regression, classification, anchors
 
     def init_backbone(self, path):
         state_dict = torch.load(path)

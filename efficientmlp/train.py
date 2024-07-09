@@ -234,8 +234,8 @@ def train(opt):
                         female_sign_tensor = female_sign_tensor.cuda()
 
                     optimizer.zero_grad()
-                    features, regression, classification, anchors = model(male_sign_tensor)
-                    features, regression, classification, anchors = model(female_sign_tensor)
+                    features,  = model(male_sign_tensor)
+                    features,  = model(female_sign_tensor)
 
                     cls_loss = cls_loss.mean()
                     reg_loss = reg_loss.mean()
@@ -286,8 +286,8 @@ def train(opt):
                             male_sign_tensor = male_sign_tensor.cuda()
                             female_sign_tensor = female_sign_tensor.cuda()
 
-                        features, regression, classification, anchors = model(male_sign_tensor)
-                        features, regression, classification, anchors = model(female_sign_tensor)
+                        features,  = model(male_sign_tensor)
+                        features,  = model(female_sign_tensor)
                         # cls_loss = cls_loss.mean()
                         # reg_loss = reg_loss.mean()
 
