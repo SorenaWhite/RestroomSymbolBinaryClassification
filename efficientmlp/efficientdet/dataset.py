@@ -153,8 +153,8 @@ class Resizer(object):
         self.img_size = img_size
 
     def __call__(self, sample):
-        image1, image2 = sample
-        height, width, _ = image1.shape
+        image = sample
+        height, width, _ = image.shape
         if height > width:
             scale = self.img_size / height
             resized_height = self.img_size
@@ -164,16 +164,13 @@ class Resizer(object):
             resized_height = int(height * scale)
             resized_width = self.img_size
 
-        image1 = cv2.resize(image1, (resized_width, resized_height), interpolation=cv2.INTER_LINEAR)
-        image2 = cv2.resize(image2, (resized_width, resized_height), interpolation=cv2.INTER_LINEAR)
+        image = cv2.resize(image, (resized_width, resized_height), interpolation=cv2.INTER_LINEAR)
 
-        new_image1 = np.zeros((self.img_size, self.img_size, 3))
-        new_image2 = np.zeros((self.img_size, self.img_size, 3))
-        new_image1[0:resized_height, 0:resized_width] = image1
-        new_image2[0:resized_height, 0:resized_width] = image2
+        new_image = np.zeros((self.img_size, self.img_size, 3))
+        new_image[0:resized_height, 0:resized_width] = image
 
 
-        return torch.from_numpy(new_image1).to(torch.float32), torch.from_numpy(new_image2).to(torch.float32)
+        return torch.from_numpy(new_image).to(torch.float32)
 
 
 
@@ -184,7 +181,5 @@ class Normalizer(object):
         self.std = np.array([[std]])
 
     def __call__(self, sample):
-        print(sample)
-        image1, image2 = sample
 
-        return ((image1.astype(np.float32) - self.mean) / self.std), ((image2.astype(np.float32) - self.mean) / self.std)
+        return ((sample.astype(np.float32) - self.mean) / self.std)
