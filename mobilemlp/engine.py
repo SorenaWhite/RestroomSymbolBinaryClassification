@@ -57,6 +57,7 @@ def train_one_epoch(model: torch.nn.Module, criterion_label: torch.nn.Module, cr
                                           dtype=torch.int64).cuda()  # torch.zeros_like(male_output).float()
                 female_target = torch.ones((female_samples.shape[0], 1, 1),
                                            dtype=torch.int64).cuda()  # torch.ones_like(female_output).float()
+                print(male_output.shape, male_target.shape)
                 loss_label = criterion_label(male_output, male_target) + criterion_label(female_output, female_target)
                 loss_feat = 1/criterion_feat(male_feat, female_feat)
                 loss = loss_label + 2*loss_feat
@@ -65,6 +66,7 @@ def train_one_epoch(model: torch.nn.Module, criterion_label: torch.nn.Module, cr
             female_feat, female_output = model(female_samples)
             male_target = torch.zeros((male_samples.shape[0], 1, 1), dtype=torch.int64).cuda()  # torch.zeros_like(male_output).float()
             female_target = torch.ones((female_samples.shape[0], 1, 1), dtype=torch.int64).cuda()  # torch.ones_like(female_output).float()
+            print(male_output.shape, male_target.shape)
             loss_label = criterion_label(male_output, male_target) + criterion_label(female_output, female_target)
             loss_feat = 1/criterion_feat(male_feat, female_feat)
             loss = loss_label + 2 * loss_feat
