@@ -58,7 +58,6 @@ def train_one_epoch(model: torch.nn.Module, criterion_label: torch.nn.Module, cr
                                           dtype=torch.int64).cuda()  # torch.zeros_like(male_output).float()
                 female_target = torch.ones((female_samples.shape[0], ),
                                            dtype=torch.int64).cuda()  # torch.ones_like(female_output).float()
-                print(male_output.shape, male_target.shape)
                 loss_label = criterion_label(male_output, male_target) + criterion_label(female_output, female_target)
                 loss_feat = 1/criterion_feat(male_feat, female_feat)
                 loss = loss_label + 2*loss_feat
@@ -67,7 +66,7 @@ def train_one_epoch(model: torch.nn.Module, criterion_label: torch.nn.Module, cr
             female_feat, female_output = model(female_samples)
             male_target = torch.zeros((male_samples.shape[0], ), dtype=torch.int64).cuda()  # torch.zeros_like(male_output).float()
             female_target = torch.ones((female_samples.shape[0],), dtype=torch.int64).cuda()  # torch.ones_like(female_output).float()
-            print(male_output.shape, male_target.shape)
+
             loss_label = criterion_label(male_output, male_target) + criterion_label(female_output, female_target)
             loss_feat = 1/criterion_feat(male_feat, female_feat)
             loss = loss_label + 2 * loss_feat
@@ -160,27 +159,38 @@ def evaluate(data_loader, model, device, use_amp=False):
     # switch to evaluation mode
     model.eval()
     for batch in metric_logger.log_every(data_loader, 10, header):
-        images = batch[0]
-        target = batch[-1]
+        male_samples, female_samples = batch
 
-        images = images.to(device, non_blocking=True)
-        target = target.to(device, non_blocking=True)
+        male_samples = male_samples.to(device, non_blocking=True)
+        female_samples = female_samples.to(device, non_blocking=True)
 
         # compute output
         if use_amp:
             with torch.cuda.amp.autocast():
-                output = model(images)
-                loss = criterion(output, target)
-        else:
-            output = model(images)
-            loss = criterion(output, target)
+                male_feat, male_output = model(male_samples)
+                female_feat, female_output = model(female_samples)
+                male_target = torch.zeros((male_samples.shape[0], ),
+                                          dtype=torch.int64).cuda()  # torch.zeros_like(male_output).float()
+                female_target = torch.ones((female_samples.shape[0], ),
+                                           dtype=torch.int64).cuda()  # torch.ones_like(female_output).float()
+                loss_label = criterion(male_output, male_target) + criterion(female_output, female_target)
+                loss = loss_label
+        else: # full precision
+            male_feat, male_output = model(male_samples)
+            female_feat, female_output = model(female_samples)
+            male_target = torch.zeros((male_samples.shape[0], ), dtype=torch.int64).cuda()  # torch.zeros_like(male_output).float()
+            female_target = torch.ones((female_samples.shape[0],), dtype=torch.int64).cuda()  # torch.ones_like(female_output).float()
 
-        acc1, acc5 = accuracy(output, target, topk=(1, 5))
+            loss_label = criterion(male_output, male_target) + criterion(female_output, female_target)
+            loss = loss_label
 
-        batch_size = images.shape[0]
+        male_acc1, male_acc5 = accuracy(male_output, male_target, topk=(1, 5))
+        female_acc1, female_acc5 = accuracy(female_output, female_target, topk=(1, 5))
+
+        batch_size = male_samples.shape[0]
         metric_logger.update(loss=loss.item())
-        metric_logger.meters['acc1'].update(acc1.item(), n=batch_size)
-        metric_logger.meters['acc5'].update(acc5.item(), n=batch_size)
+        metric_logger.meters['acc1'].update((male_acc1.item()+female_acc1.item())/2, n=batch_size)
+        metric_logger.meters['acc5'].update((male_acc5.item()+female_acc5.item())/2, n=batch_size)
     # gather the stats from all processes
     metric_logger.synchronize_between_processes()
     print('* Acc@1 {top1.global_avg:.3f} Acc@5 {top5.global_avg:.3f} loss {losses.global_avg:.3f}'
