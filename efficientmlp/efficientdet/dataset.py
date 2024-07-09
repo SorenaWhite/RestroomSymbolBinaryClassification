@@ -170,7 +170,7 @@ class Resizer(object):
         new_image[0:resized_height, 0:resized_width] = image
 
 
-        return torch.from_numpy(new_image).to(torch.float32)
+        return new_image
 
 
 

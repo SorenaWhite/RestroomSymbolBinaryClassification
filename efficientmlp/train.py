@@ -100,13 +100,11 @@ def train(opt):
     training_params = {'batch_size': opt.batch_size,
                        'shuffle': True,
                        'drop_last': True,
-                       'collate_fn': collater,
                        'num_workers': opt.num_workers}
 
     val_params = {'batch_size': opt.batch_size,
                   'shuffle': False,
                   'drop_last': True,
-                  'collate_fn': collater,
                   'num_workers': opt.num_workers}
 
     input_sizes = [512, 640, 768, 896, 1024, 1280, 1280, 1536, 1536]
@@ -115,8 +113,11 @@ def train(opt):
     #                                                          Augmenter(),
     #                                                          Resizer(input_sizes[opt.compound_coef])]))
     training_set = MMLRestroomSign(opt.data_path, is_train=True,
-                                   transform=transforms.Compose([Normalizer(mean=params.mean, std=params.std),
-                                                                 Resizer(input_sizes[opt.compound_coef])]))
+                                   transform=transforms.Compose([
+                                       Normalizer(mean=params.mean, std=params.std),
+                                       Resizer(input_sizes[opt.compound_coef]),
+                                       transforms.ToTensor(),
+                                   ]))
 
 
     training_generator = DataLoader(training_set, **training_params)
@@ -125,8 +126,11 @@ def train(opt):
     #                       transform=transforms.Compose([Normalizer(mean=params.mean, std=params.std),
     #                                                     Resizer(input_sizes[opt.compound_coef])]))
     val_set = MMLRestroomSign(opt.data_path, is_train=False,
-                          transform=transforms.Compose([Normalizer(mean=params.mean, std=params.std),
-                                                        Resizer(input_sizes[opt.compound_coef])]))
+                          transform=transforms.Compose([
+                              Normalizer(mean=params.mean, std=params.std),
+                              Resizer(input_sizes[opt.compound_coef]),
+                              transforms.ToTensor(),
+                          ]))
     val_generator = DataLoader(val_set, **val_params)
 
     model = EfficientDetBackbone(num_classes=len(params.obj_list), compound_coef=opt.compound_coef,
