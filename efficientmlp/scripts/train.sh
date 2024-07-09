@@ -6,4 +6,4 @@ python train.py \
 --num_epochs 500 \
 --data_path /root/autodl-tmp/mmlrestroomsign/ \
 --log_path /root/autodl-tmp/logs/ \
---saved_path /root/autodl-tmp/output/ \
+--saved_path /root/autodl-tmp/output/
