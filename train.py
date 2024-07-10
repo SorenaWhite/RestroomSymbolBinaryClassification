@@ -82,6 +82,7 @@ def train(epoch, batch_size, learning_rate, cup_path, cupnot_path):
             texts = clip.tokenize(list_txt).to(device)
             images = list_image.to(device)
 
+
             logits_per_image, logits_per_text = model(images, texts)
             print(logits_per_image)
             # print(logits_per_text)
@@ -106,14 +107,31 @@ def train(epoch, batch_size, learning_rate, cup_path, cupnot_path):
         print('[%d] loss: %.3f' %(i + 1, total_loss))
     torch.save(model, './model/model1.pkl')
 
+def get_feat(path):
+    # Load the model
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model, preprocess = clip.load('ViT-B/32', device)
+
+    # Prepare the inputs
+    image_input = preprocess(path).unsqueeze(0).to(device)
+    text_input = clip.tokenize(f"restroom sign").to(device)
+
+    # Calculate features
+    with torch.no_grad():
+        image_features = model.encode_image(image_input)
+        text_features = model.encode_text(text_input)
+        print(image_features.shape)
+        print(text_features.shape)
+
 
 def main():
     epoch = 100
     batch_size = 2
     learning_rate = 5e-5
-    cup_path = 'data/cup/'
-    cupnot_path = 'data/not_cup/'
-    train(epoch, batch_size, learning_rate, cup_path, cupnot_path)
+    cup_path = 'data/cup/cup.jpg'
+    cupnot_path = 'data/not_cup/not_cup.jpg'
+    # train(epoch, batch_size, learning_rate, cup_path, cupnot_path)
+    get_feat(cup_path)
 
 
 if __name__ == '__main__':
