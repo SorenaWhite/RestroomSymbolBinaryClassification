@@ -109,7 +109,7 @@ def train(epoch, batch_size, learning_rate, cup_path, cupnot_path):
 
 def main():
     epoch = 100
-    batch_size = 6
+    batch_size = 2
     learning_rate = 5e-5
     cup_path = 'data/cup/'
     cupnot_path = 'data/not_cup/'
