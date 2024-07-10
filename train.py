@@ -149,7 +149,7 @@ def linear_probe():
                 label = int(os.path.splitext(image_path.split("_")[-1])[0])
                 all_features.append(feature)
                 all_labels.append(torch.Tensor(label))
-
+        print(len(all_features), len(all_labels))
         return torch.cat(all_features).cpu().numpy(), torch.cat(all_labels).cpu().numpy()
 
     # Calculate the image features
