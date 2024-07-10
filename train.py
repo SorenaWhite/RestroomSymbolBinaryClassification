@@ -113,7 +113,7 @@ def get_feat(path):
     model, preprocess = clip.load('ViT-B/32', device)
 
     # Prepare the inputs
-    image_input = preprocess(path).unsqueeze(0).to(device)
+    image_input = preprocess(Image.open(path)).unsqueeze(0).to(device)
     text_input = clip.tokenize(f"restroom sign").to(device)
 
     # Calculate features
