@@ -157,16 +157,19 @@ def linear_probe():
     test_features, test_labels = get_features("val")
     # print(train_labels, test_labels)
     # Perform logistic regression
-    classifier = LogisticRegression(random_state=0, C=0.316, max_iter=10000, verbose=1, solver="saga", penalty="l2")
+    classifier = LogisticRegression(C=0.316, max_iter=10000, verbose=1, solver="saga", penalty="l2")
 
     classifier.fit(train_features, train_labels)
     print(classifier.score(test_features, test_labels))
 
     # Evaluate using the logistic regression classifier
-    predictions = classifier.predict(train_features)
+    predictions = classifier.predict(test_features)
 
-    accuracy = np.mean((train_labels == predictions).astype(float)) * 100.
-    print(f"Accuracy = {accuracy:.3f}")
+    accuracy = 0.0
+    for y_reg, y in zip(predictions, train_labels):
+        if y_reg == y:
+            accuracy += 1
+    print(f"Accuracy = {accuracy/len(predictions):.3f}")
 
 
 def main():
