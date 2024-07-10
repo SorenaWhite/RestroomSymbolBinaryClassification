@@ -111,8 +111,8 @@ def main():
     epoch = 100
     batch_size = 6
     learning_rate = 5e-5
-    cup_path = './cup.jpg'
-    cupnot_path = './not_cup.jpg'
+    cup_path = 'data/cup/'
+    cupnot_path = 'data/not_cup/'
     train(epoch, batch_size, learning_rate, cup_path, cupnot_path)
 
 
