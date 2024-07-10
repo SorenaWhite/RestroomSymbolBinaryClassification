@@ -1,10 +1,15 @@
 from torch.utils.data import Dataset, DataLoader
 import torch
 import clip
+import glob
 from torch import nn, optim
 import pandas as pd
+from tqdm import tqdm
 from PIL import Image
 import os
+from sklearn.linear_model import LogisticRegression
+import numpy as np
+from attention import MultiHeadAttention
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -112,6 +117,8 @@ def get_feat(path):
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model, preprocess = clip.load('ViT-B/32', device)
 
+    mlpattn = MultiHeadAttention(512)
+
     # Prepare the inputs
     image_input = preprocess(Image.open(path)).unsqueeze(0).to(device)
     text_input = clip.tokenize(f"restroom sign").to(device)
@@ -122,6 +129,41 @@ def get_feat(path):
         text_features = model.encode_text(text_input)
         print(image_features.shape)
         print(text_features.shape)
+        preds = mlpattn(query=image_features, key=text_features, value=text_features)
+
+def linear_probe():
+    image_root = r""
+    # Load the model
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model, preprocess = clip.load('ViT-B/32', device)
+
+    def get_features(set_name):
+        all_features = []
+        all_labels = []
+
+        with torch.no_grad():
+            for image_path in glob.glob(os.path.join(image_root, set_name, "*.png")):
+                image_input = preprocess(Image.open(image_path)).unsqueeze(0).to(device)
+
+                feature = model.encode_image(image_input)
+                label = int(os.path.splitext(image_path.split("_")[-1])[0])
+                all_features.append(feature)
+                all_labels.append(torch.Tensor(label))
+
+        return torch.cat(all_features).cpu().numpy(), torch.cat(all_labels).cpu().numpy()
+
+    # Calculate the image features
+    train_features, train_labels = get_features("train")
+    test_features, test_labels = get_features("val")
+
+    # Perform logistic regression
+    classifier = LogisticRegression(random_state=0, C=0.316, max_iter=1000, verbose=1)
+    classifier.fit(train_features, train_labels)
+
+    # Evaluate using the logistic regression classifier
+    predictions = classifier.predict(test_features)
+    accuracy = np.mean((test_labels == predictions).astype(float)) * 100.
+    print(f"Accuracy = {accuracy:.3f}")
 
 
 def main():
