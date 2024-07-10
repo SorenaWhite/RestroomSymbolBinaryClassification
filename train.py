@@ -155,7 +155,7 @@ def linear_probe():
     train_features, train_labels = get_features("train")
     # print(train_features.shape, train_labels.shape)
     test_features, test_labels = get_features("val")
-    print(train_labels, test_labels)
+    # print(train_labels, test_labels)
     # Perform logistic regression
     classifier = LogisticRegression(random_state=0, C=0.316, max_iter=10000, verbose=1, solver="saga", penalty="l2")
 
@@ -163,6 +163,7 @@ def linear_probe():
 
     # Evaluate using the logistic regression classifier
     predictions = classifier.predict(test_features)
+    print(predictions)
     accuracy = np.mean((test_labels == predictions).astype(float)) * 100.
     print(f"Accuracy = {accuracy:.3f}")
 
