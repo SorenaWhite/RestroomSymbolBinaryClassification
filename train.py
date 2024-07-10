@@ -83,8 +83,8 @@ def train(epoch, batch_size, learning_rate, cup_path, cupnot_path):
             images = list_image.to(device)
 
             logits_per_image, logits_per_text = model(images, texts)
-            print(logits_per_image.shape)
-            print(logits_per_text.shape)
+            print(logits_per_image)
+            # print(logits_per_text)
             if device == "cpu":
                 ground_truth = torch.arange(batch_size).long().to(device)
             else:
