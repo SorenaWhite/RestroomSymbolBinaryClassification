@@ -132,7 +132,7 @@ def get_feat(path):
         preds = mlpattn(query=image_features, key=text_features, value=text_features)
 
 def linear_probe():
-    image_root = r""
+    image_root = r"/root/autodl-tmp/mmlrestroomsign"
     # Load the model
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model, preprocess = clip.load('ViT-B/32', device)
@@ -177,4 +177,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    linear_probe()
