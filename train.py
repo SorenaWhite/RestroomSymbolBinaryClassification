@@ -158,6 +158,7 @@ def linear_probe():
 
     # Perform logistic regression
     classifier = LogisticRegression(random_state=0, C=0.316, max_iter=1000, verbose=1)
+    print(train_features.shape, train_labels.shape)
     classifier.fit(train_features, train_labels)
 
     # Evaluate using the logistic regression classifier
