@@ -141,7 +141,7 @@ class TransformerDecoder(nn.Module):
     @staticmethod
     def init_weights(m):
         if isinstance(m, nn.Linear):
-            torch.nn.init.xavier_uniform(m.weight)
+            torch.nn.init.kaiming_uniform_(m.weight)
             m.bias.data.fill_(0.01)
 
     def forward(self, x, m):
