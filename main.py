@@ -3,10 +3,39 @@ import argparse
 import numpy as np
 from tqdm import tqdm
 import torch.backends.cudnn as cudnn
+from torch import optim as optim
 from torch.utils.data import DataLoader
 from timm.loss import LabelSmoothingCrossEntropy
-from dataset.MMLRestroomSign import MMLRestroomSign
+from dataset.MMLRestroomSign import MMLRestroomSign, build_transform
 from transformer_decoder import TransformerDecoder
+
+
+class AverageMeter(object):
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.val = 0
+        self.avg = 0
+        self.sum = 0
+        self.count = 0
+
+    def update(self, val, n=1):
+        self.val = val
+        self.sum += val * n
+        self.count += n
+        self.avg = self.sum / self.count
+
+
+def accuracy(output, target, topk=(1,)):
+    """Computes the accuracy over the k top predictions for the specified values of k"""
+    maxk = min(max(topk), output.size()[1])
+    batch_size = target.size(0)
+    _, pred = output.topk(maxk, 1, True, True)
+    pred = pred.t()
+    correct = pred.eq(target.reshape(1, -1).expand_as(pred))
+    return [correct[:min(k, maxk)].reshape(-1).float().sum(0) * 100. / batch_size for k in topk]
+
 
 def get_args():
     parser = argparse.ArgumentParser('MobileMLP+LLM', add_help=False)
@@ -41,14 +70,15 @@ def get_args():
 class Trainer:
     def __init__(self, args):
         print(args)
+        self.epoch = args.epoch
         self.device = torch.device(args.device)
         seed = args.seed
         torch.manual_seed(seed)
         np.random.seed(seed)
         cudnn.benchmark = True
 
-        dataset_train = MMLRestroomSign(args.data_root, transform, device, is_train=True)
-        dataset_val = MMLRestroomSign(args.data_root, transform, device, is_train=False)
+        dataset_train = MMLRestroomSign(args.data_root, build_transform(args, is_train=True), self.device, is_train=True)
+        dataset_val = MMLRestroomSign(args.data_root, build_transform(args, is_train=False), self.device, is_train=False)
 
         self.data_loader_train = DataLoader(
             dataset_train,
@@ -68,16 +98,10 @@ class Trainer:
         )
         self.model = TransformerDecoder(num_classes=2)
 
-        self.optimizer = create_optimizer(
-            args, model, skip_list=None,
-            get_num_layer=assigner.get_layer_id if assigner is not None else None,
-            get_layer_scale=assigner.get_scale if assigner is not None else None)
+        self.optimizer = optim.Adam(self.model.parameters())
 
         num_training_steps_per_epoch = len(dataset_train)
-        lr_schedule_values = utils.cosine_scheduler(
-            args.lr, args.min_lr, args.epochs, num_training_steps_per_epoch,
-            warmup_epochs=args.warmup_epochs, warmup_steps=args.warmup_steps,
-        )
+        self.lr_scheduler = optim.lr_scheduler.ExponentialLR(self.optimizer, gamma=0.9)
 
         self.criterion = LabelSmoothingCrossEntropy(smoothing=args.smoothing)
 
@@ -86,6 +110,8 @@ class Trainer:
         self.model.train()
         self.optimizer.zero_grad()
 
+        loss_value = AverageMeter()
+        acc_value = AverageMeter()
         for data_iter, data in enumerate(tqdm(self.data_loader_train)):
             image_tensor, text_tensor, target_tensor = data
             image_tensor = image_tensor.to(self.device)
@@ -96,18 +122,25 @@ class Trainer:
 
             loss = self.criterion(preds, target_tensor)
 
-            loss_value = loss.item()
+            loss_value.update(loss.item())
+            acc_value.update(accuracy(preds, target_tensor))
             loss.backward()
             self.optimizer.step()
             self.optimizer.zero_grad()
-
             torch.cuda.synchronize()
-        print()
 
+        self.lr_scheduler.step()
+
+        print(f"[Train] Loss: {loss_value.avg}, Acc: {acc_value.avg}")
+        loss_value.reset()
+        acc_value.reset()
 
     @torch.no_grad()
     def eval_one_epoch(self):
         criterion = torch.nn.CrossEntropyLoss()
+
+        loss_value = AverageMeter()
+        acc_value = AverageMeter()
 
         self.model.eval()
         for data_iter, data in enumerate(tqdm(self.data_loader_val)):
@@ -120,19 +153,18 @@ class Trainer:
 
             loss = criterion(preds, target_tensor)
 
-            loss_value = loss.item()
-            loss.backward()
-            self.optimizer.step()
-            self.optimizer.zero_grad()
+            loss_value.update(loss.item())
+            acc_value.update(accuracy(preds, target_tensor))
 
-            torch.cuda.synchronize()
-        print()
-
+        print(f"[Eval] Loss: {loss_value.avg}, Acc: {acc_value.avg}")
+        loss_value.reset()
+        acc_value.reset()
 
     def train(self):
-        self.train_one_epoch()
-        self.eval_one_epoch()
-
+        for epoch in range(self.epoch):
+            print(f"------- Epoch {epoch} ----------")
+            self.train_one_epoch()
+            self.eval_one_epoch()
 
 
 def main():
