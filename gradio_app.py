@@ -15,8 +15,7 @@ model.eval()
 
 
 def inference(im_pil):
-    image_input = preprocess(im_pil).unsqueeze(0).to(device)
-    image_feature = clip_model.encode_image(image_input)
+    image_feature = clip_model.encode_image(preprocess(im_pil).unsqueeze(0).to(device))
     image_tensor = torch.cat([image_feature, image_feature])
 
     male_text_feature = clip_model.encode_text(clip.tokenize("restroom sign of male").to(device))
