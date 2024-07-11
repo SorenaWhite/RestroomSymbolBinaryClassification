@@ -115,8 +115,7 @@ class Trainer:
             shuffle=False
         )
         self.model = TransformerDecoder(num_classes=2).cuda()
-        for w in self.model.parameters():
-            torch.nn.init.kaiming_uniform_(w)
+        self.model.apply(torch.nn.init.kaiming_uniform_)
 
         self.optimizer = optim.Adam(self.model.parameters())
 
