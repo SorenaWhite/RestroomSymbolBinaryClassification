@@ -124,12 +124,13 @@ class MMLRestroomSign(Dataset):
         if random.random() < 0.5:
             image_tensor = torch.cat([male_image_feature, female_image_feature])
 
-            text_feature_0, label = self.choose_text()
-            correct_0 = 1 - label ^ 0
+            text_feature_0, label_0 = self.choose_text()
+            correct_0 = 1 - label_0 ^ 0
 
-            text_feature_1, label = self.choose_text()
-            correct_1 = 1 - label ^ 1
-            print(correct_0, correct_1)
+            text_feature_1, label_1 = self.choose_text()
+            correct_1 = 1 - label_1 ^ 1
+            print(label_0, correct_0)
+            print(label_1, correct_1)
             text_tensor = torch.cat([text_feature_0, text_feature_1])
             target_tensor = torch.tensor([correct_0, correct_1], dtype=torch.long)
         else:
