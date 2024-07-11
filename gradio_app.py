@@ -38,4 +38,4 @@ demo = gr.Interface(fn=inference,
                     title='Inference demo'
                     )
 
-demo.launch()
+demo.launch(server_port=6006)
