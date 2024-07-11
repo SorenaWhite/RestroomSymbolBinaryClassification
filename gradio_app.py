@@ -26,6 +26,7 @@ def inference(im_pil):
         preds = model(image_tensor, text_tensor)
         print(preds)
         result = preds.topk(1, 1, True, True)
+        print(result)
     return result
 
 
