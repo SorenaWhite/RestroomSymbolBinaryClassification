@@ -128,9 +128,9 @@ class Trainer:
         acc_value = AverageMeter()
         for data_iter, data in enumerate(tqdm(self.data_loader_train)):
             image_tensor, text_tensor, target_tensor = data
-            image_tensor = image_tensor.to(self.device)
-            text_tensor = text_tensor.to(self.device)
-            target_tensor = target_tensor.to(self.device)
+            image_tensor = image_tensor.squeeze(0).to(self.device)
+            text_tensor = text_tensor.squeeze(0).to(self.device)
+            target_tensor = target_tensor.squeeze(0).to(self.device)
 
             print(image_tensor.shape, text_tensor.shape)
             preds = self.model(image_tensor, text_tensor)
