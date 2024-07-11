@@ -115,6 +115,7 @@ class Trainer:
             shuffle=False
         )
         self.model = TransformerDecoder(num_classes=2).cuda()
+        torch.nn.init.xavier_uniform(self.model.parameters())
 
         self.optimizer = optim.Adam(self.model.parameters())
 
