@@ -137,8 +137,10 @@ class Trainer:
 
             loss_value.update(loss.item())
             acc_value.update(accuracy(preds, target_tensor)[0])
+
             loss.backward()
             self.optimizer.step()
+
             self.optimizer.zero_grad()
             torch.cuda.synchronize()
 
@@ -158,9 +160,9 @@ class Trainer:
         self.model.eval()
         for data_iter, data in enumerate(tqdm(self.data_loader_val)):
             image_tensor, text_tensor, target_tensor = data
-            image_tensor = image_tensor.to(self.device)
-            text_tensor = text_tensor.to(self.device)
-            target_tensor = target_tensor.to(self.device)
+            image_tensor = image_tensor.squeeze(0).to(self.device)
+            text_tensor = text_tensor.squeeze(0).to(self.device)
+            target_tensor = target_tensor.squeeze(0).to(self.device)
 
             preds = self.model(image_tensor, text_tensor)
 
