@@ -98,14 +98,16 @@ class MMLRestroomSign(Dataset):
         return pairs
 
     def get_clip_image_feature(self, image_path):
-        image_input = self.preprocess(Image.open(image_path)).unsqueeze(0).to(self.device)
-        image_feature = self.clip_model.encode_image(image_input)
-        return image_feature
+        with torch.no_grad():
+            image_input = self.preprocess(Image.open(image_path)).unsqueeze(0).to(self.device)
+            image_feature = self.clip_model.encode_image(image_input)
+            return image_feature.detach()
 
     def get_clip_text_feature(self, text):
-        text_input = clip.tokenize(text).to(self.device)
-        text_feature = self.clip_model.encode_text(text_input)
-        return text_feature
+        with torch.no_grad():
+            text_input = clip.tokenize(text).to(self.device)
+            text_feature = self.clip_model.encode_text(text_input)
+            return text_feature.detach()
 
     def get_data_from_clip(self, item):
         male_sign_path, female_sign_path = self.symbol_pairs[item]
