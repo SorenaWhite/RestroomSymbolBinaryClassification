@@ -70,7 +70,7 @@ def get_args():
 class Trainer:
     def __init__(self, args):
         print(args)
-        self.epoch = args.epoch
+        self.epochs = args.epochs
         self.device = torch.device(args.device)
         seed = args.seed
         torch.manual_seed(seed)
@@ -161,7 +161,7 @@ class Trainer:
         acc_value.reset()
 
     def train(self):
-        for epoch in range(self.epoch):
+        for epoch in range(self.epochs):
             print(f"------- Epoch {epoch} ----------")
             self.train_one_epoch()
             self.eval_one_epoch()
