@@ -75,7 +75,7 @@ class MMLRestroomSign(Dataset):
         else:
             val_root = os.path.join(data_root, "val")
             self.symbol_pairs = self.read_from_disk(val_root)
-        self.device = device
+        self.device = "cpu"
         self.clip_model = clip_model
         self.preprocess = preprocess
 

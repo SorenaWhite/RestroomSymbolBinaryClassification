@@ -79,7 +79,7 @@ class Trainer:
         np.random.seed(seed)
         cudnn.benchmark = True
 
-        clip_model, preprocess = clip.load('ViT-B/32', self.device)
+        clip_model, preprocess = clip.load('ViT-B/32', "cpu")
         dataset_train = MMLRestroomSign(
             data_root=args.data_root,
             transform=build_transform(args, is_train=True),
