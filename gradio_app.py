@@ -10,7 +10,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 clip_model, preprocess = clip.load('ViT-B/32', device)
 model = TransformerDecoder(num_classes=2).to(device)
-model = model.load_state_dict(torch.load("model_last.pth"))
+model.load_state_dict(torch.load("model_last.pth"))
 model.eval()
 
 
