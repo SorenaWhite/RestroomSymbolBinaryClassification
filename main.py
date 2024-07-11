@@ -133,7 +133,7 @@ class Trainer:
             target_tensor = target_tensor.to(self.device)
 
             preds = self.model(image_tensor, text_tensor)
-
+            print(preds.shape, target_tensor)
             loss = self.criterion(preds, target_tensor)
 
             loss_value.update(loss.item())
