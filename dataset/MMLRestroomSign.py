@@ -129,7 +129,7 @@ class MMLRestroomSign(Dataset):
 
             text_feature_1, label = self.choose_text()
             correct_1 = 1 - label ^ 1
-
+            print(correct_0, correct_1)
             text_tensor = torch.cat([text_feature_0, text_feature_1])
             target_tensor = torch.tensor([correct_0, correct_1], dtype=torch.long)
         else:
