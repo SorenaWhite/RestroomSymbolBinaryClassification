@@ -21,9 +21,11 @@ def inference(im_pil):
     female_text_feature = clip_model.encode_text(clip.tokenize("restroom sign of female").to(device))
     text_tensor = torch.cat([male_text_feature, female_text_feature])
 
-    preds = model(image_tensor, text_tensor)
-    result = preds.topk(1, 1, True, True).t()
-    print(result)
+    with torch.no_grad():
+        print(image_tensor.shape, text_tensor.shape)
+        preds = model(image_tensor, text_tensor)
+        result = preds.topk(1, 1, True, True).t()
+        print(result)
     return result
 
 
