@@ -18,9 +18,8 @@ def inference(im_pil):
     image_feature = clip_model.encode_image(preprocess(im_pil).unsqueeze(0).to(device))
     image_tensor = torch.cat([image_feature, image_feature]).float()
 
-    male_text_feature = clip_model.encode_text(clip.tokenize("restroom sign of male").to(device))
-    female_text_feature = clip_model.encode_text(clip.tokenize("restroom sign of female").to(device))
-    text_tensor = torch.cat([male_text_feature, female_text_feature]).float()
+    text_feature = clip_model.encode_text(clip.tokenize("toilet sign").to(device))
+    text_tensor = torch.cat([text_feature, text_feature]).float()
 
     with torch.no_grad():
         print(image_tensor.dtype, text_tensor.dtype)
