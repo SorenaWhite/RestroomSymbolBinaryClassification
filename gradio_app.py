@@ -25,7 +25,7 @@ def inference(im_pil):
     with torch.no_grad():
         print(image_tensor.dtype, text_tensor.dtype)
         preds = model(image_tensor, text_tensor)
-        result = preds.topk(1, 1, True, True).t()
+        result = preds.topk(1, 1, True, True)
         print(result)
     return result
 
