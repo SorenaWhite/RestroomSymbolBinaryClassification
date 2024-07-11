@@ -72,7 +72,7 @@ class Trainer:
     def __init__(self, args):
         print(args)
         self.epochs = args.epochs
-        self.device = torch.device(args.device)
+        self.device = args.device
         seed = args.seed
         torch.manual_seed(seed)
         np.random.seed(seed)
