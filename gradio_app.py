@@ -27,10 +27,6 @@ def inference(im_pil):
     return result
 
 
-imagein = gr.inputs.Image(label='Original Image')
-imageout =  gr.outputs.T(label='Sketched Image',type='pil')
-
-gr.Interface(fn=inference, inputs=imagein, outputs=imageout,title='Convert RGB Image to Sketch').launch();
 demo = gr.Interface(fn=inference,
                     inputs=gr.inputs.Image(type="pil"),
                     outputs=gr.outputs.Label(num_top_classes=1),
