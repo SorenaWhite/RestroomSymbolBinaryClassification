@@ -79,8 +79,10 @@ class MMLRestroomSign(Dataset):
         self.clip_model = clip_model
         self.preprocess = preprocess
 
-        self.male_text_feature = self.get_clip_text_feature("male toilet sign")
-        self.female_text_feature = self.get_clip_text_feature("female toilet sign")
+        # self.male_text_feature = self.get_clip_text_feature("male toilet sign")
+        # self.female_text_feature = self.get_clip_text_feature("female toilet sign")
+
+        self.text_feature = self.get_clip_text_feature("toilet sign")
 
         self.transform = transform
 
@@ -121,28 +123,32 @@ class MMLRestroomSign(Dataset):
         male_image_feature = self.get_clip_image_feature(male_sign_path)
         female_image_feature = self.get_clip_image_feature(female_sign_path)
 
+
+        text_tensor = torch.cat([self.text_feature, self.text_feature])
         if random.random() < 0.5:
             image_tensor = torch.cat([male_image_feature, female_image_feature])
 
-            text_feature_0, label_0 = self.choose_text()
-            correct_0 = 1 - label_0 ^ 0
-
-            text_feature_1, label_1 = self.choose_text()
-            correct_1 = 1 - label_1 ^ 1
-
-            text_tensor = torch.cat([text_feature_0, text_feature_1])
-            target_tensor = torch.tensor([correct_0, correct_1], dtype=torch.long)
+            # text_feature_0, label_0 = self.choose_text()
+            # correct_0 = 1 - label_0 ^ 0
+            #
+            # text_feature_1, label_1 = self.choose_text()
+            # correct_1 = 1 - label_1 ^ 1
+            #
+            # text_tensor = torch.cat([text_feature_0, text_feature_1])
+            # target_tensor = torch.tensor([correct_0, correct_1], dtype=torch.long)
+            target_tensor = torch.tensor([0, 1], dtype=torch.long)
         else:
             image_tensor = torch.cat([female_image_feature, male_image_feature])
-
-            text_feature_0, label = self.choose_text()
-            correct_0 = 1 - label ^ 1
-
-            text_feature_1, label = self.choose_text()
-            correct_1 = 1 - label ^ 0
-
-            text_tensor = torch.cat([text_feature_0, text_feature_1])
-            target_tensor = torch.tensor([correct_0, correct_1], dtype=torch.long)
+            #
+            # text_feature_0, label = self.choose_text()
+            # correct_0 = 1 - label ^ 1
+            #
+            # text_feature_1, label = self.choose_text()
+            # correct_1 = 1 - label ^ 0
+            #
+            # text_tensor = torch.cat([text_feature_0, text_feature_1])
+            # target_tensor = torch.tensor([correct_0, correct_1], dtype=torch.long)
+            target_tensor = torch.tensor([1, 0], dtype=torch.long)
 
         return image_tensor, text_tensor, target_tensor
 
