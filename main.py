@@ -43,7 +43,7 @@ def get_args():
     parser.add_argument('--epochs', default=300, type=int)
     parser.add_argument('--num_workers', default=10, type=int)
     parser.add_argument('--pin_mem', type=bool, default=True)
-    parser.add_argument('--data_root', default='/media/data/', type=str, help='dataset root')
+    parser.add_argument('--data_root', default='/root/autodl-tmp/mmlrestroomsign', type=str, help='dataset root')
 
     parser.add_argument('--opt', default='adamw', type=str, metavar='OPTIMIZER')
     parser.add_argument('--opt_eps', default=1e-8, type=float, metavar='EPSILON')
