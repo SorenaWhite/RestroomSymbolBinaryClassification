@@ -1,3 +1,4 @@
+import os
 import clip
 import torch
 import argparse
@@ -45,6 +46,7 @@ def get_args():
     parser.add_argument('--num_workers', default=10, type=int)
     parser.add_argument('--pin_mem', type=bool, default=True)
     parser.add_argument('--data_root', default='/root/autodl-tmp/mmlrestroomsign', type=str, help='dataset root')
+    parser.add_argument('--save_root', default='/root/autodl-tmp/output', type=str, help='output root')
 
     parser.add_argument('--smoothing', type=float, default=0.1, help='Label smoothing (default: 0.1)')
     parser.add_argument('--opt', default='adamw', type=str, metavar='OPTIMIZER')
@@ -74,6 +76,7 @@ class Trainer:
         print(args)
         self.epochs = args.epochs
         self.device = args.device
+        self.save_root = args.save_root
         seed = args.seed
         torch.manual_seed(seed)
         np.random.seed(seed)
@@ -180,6 +183,7 @@ class Trainer:
             print(f"------- Epoch {epoch} ----------")
             self.train_one_epoch()
             self.eval_one_epoch()
+            torch.save(self.model.state_dict(), os.path.join(self.save_root, "model_last.pth"))
 
 
 def main():
