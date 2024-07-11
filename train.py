@@ -28,7 +28,6 @@ class image_caption_dataset(Dataset):
         return images, caption
 
 
-
 def load_data(cup_path, cupnot_path, batch_size, preprocess):
     df = {'image': [], 'caption':[]}
     cup_list = os.listdir(cup_path)
