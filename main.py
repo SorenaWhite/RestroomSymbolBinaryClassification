@@ -168,9 +168,10 @@ class Trainer:
             target_tensor = target_tensor.squeeze(0).to(self.device)
 
             preds = self.model(image_tensor, text_tensor)
-            print(preds, target_tensor)
-            loss = criterion(preds, target_tensor)
 
+            loss = criterion(preds, target_tensor)
+            print(preds, target_tensor, loss.item())
+            
             loss_value.update(loss.item())
             acc_value.update(accuracy(preds, target_tensor)[0])
 
