@@ -14,6 +14,11 @@ model.load_state_dict(torch.load("model_last.pth"))
 model.eval()
 
 
+label_map = {
+    0: "male",
+    1: "female"
+}
+
 def inference(im_pil):
     image_feature = clip_model.encode_image(preprocess(im_pil).unsqueeze(0).to(device))
     image_tensor = torch.cat([image_feature, image_feature]).float()
@@ -27,7 +32,7 @@ def inference(im_pil):
         # print(preds)
         result = preds.topk(1, 1, True, True).indices.cpu().item()[0]
 
-    return result
+    return label_map[result]
 
 
 demo = gr.Interface(fn=inference,
