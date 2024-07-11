@@ -79,8 +79,8 @@ class MMLRestroomSign(Dataset):
         self.clip_model = clip_model
         self.preprocess = preprocess
 
-        self.male_text_feature = self.get_clip_text_feature("restroom sign of male")
-        self.female_text_feature = self.get_clip_text_feature("restroom sign of female")
+        self.male_text_feature = self.get_clip_text_feature("male toilet sign")
+        self.female_text_feature = self.get_clip_text_feature("female toilet sign")
 
         self.transform = transform
 
