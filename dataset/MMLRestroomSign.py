@@ -115,14 +115,22 @@ class MMLRestroomSign(Dataset):
         male_image_feature = self.get_clip_image_feature(male_sign_path)
         female_image_feature = self.get_clip_image_feature(female_sign_path)
 
-        if random.random() > 0.5:
+        if random.random() < 0.25:
             image_tensor = torch.cat([male_image_feature, female_image_feature])
             text_tensor = torch.cat([self.male_text_feature, self.female_text_feature])
             target_tensor = torch.tensor([0, 1], dtype=torch.long)
-        else:
+        elif random.random() < 0.5:
             image_tensor = torch.cat([female_image_feature, male_image_feature])
             text_tensor = torch.cat([self.female_text_feature, self.male_text_feature])
             target_tensor = torch.tensor([1, 0], dtype=torch.long)
+        elif random.random() < 0.75:
+            image_tensor = torch.cat([male_image_feature, male_image_feature])
+            text_tensor = torch.cat([self.male_text_feature, self.male_text_feature])
+            target_tensor = torch.tensor([0, 0], dtype=torch.long)
+        else:
+            image_tensor = torch.cat([female_image_feature, female_image_feature])
+            text_tensor = torch.cat([self.female_text_feature, self.female_text_feature])
+            target_tensor = torch.tensor([1, 1], dtype=torch.long)
 
         return image_tensor, text_tensor, target_tensor
 
