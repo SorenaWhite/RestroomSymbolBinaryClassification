@@ -45,6 +45,7 @@ def get_args():
     parser.add_argument('--pin_mem', type=bool, default=True)
     parser.add_argument('--data_root', default='/root/autodl-tmp/mmlrestroomsign', type=str, help='dataset root')
 
+    parser.add_argument('--smoothing', type=float, default=0.1, help='Label smoothing (default: 0.1)')
     parser.add_argument('--opt', default='adamw', type=str, metavar='OPTIMIZER')
     parser.add_argument('--opt_eps', default=1e-8, type=float, metavar='EPSILON')
     parser.add_argument('--opt_betas', default=None, type=float, nargs='+', metavar='BETA')
