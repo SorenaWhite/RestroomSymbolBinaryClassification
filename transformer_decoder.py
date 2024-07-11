@@ -143,7 +143,8 @@ class TransformerDecoder(nn.Module):
         # out = x.view(x.shape[0], -1)
         # out = self.head(out)
         x = torch.flatten(x, 1)
-        return self.head(x)
+        x = self.head(x)
+        return x
 
 
 if __name__ == '__main__':
