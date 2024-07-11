@@ -123,7 +123,7 @@ class MMLRestroomSign(Dataset):
             image_tensor = torch.cat([female_image_feature, male_image_feature])
             text_tensor = torch.cat([self.female_text_feature, self.male_text_feature])
             target_tensor = torch.Tensor([[1], [0]])
-        print(image_tensor.shape, text_tensor.shape, target_tensor.shape)
+
         return image_tensor, text_tensor, target_tensor
 
 
