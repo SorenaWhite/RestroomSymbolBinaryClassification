@@ -1,4 +1,4 @@
-import gr as gr
+import gradio as gr
 import torch
 import cv2
 from PIL import Image
