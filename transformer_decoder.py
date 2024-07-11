@@ -136,6 +136,14 @@ class TransformerDecoder(nn.Module):
         self.norm = LayerNorm(layer.size)
         self.head = nn.Linear(d_model*2, num_classes)
 
+        self.apply(self.init_weights)
+
+    @staticmethod
+    def init_weights(m):
+        if isinstance(m, nn.Linear):
+            torch.nn.init.xavier_uniform(m.weight)
+            m.bias.data.fill_(0.01)
+
     def forward(self, x, m):
         for layer in self.layers:
             x = layer(x, m)
