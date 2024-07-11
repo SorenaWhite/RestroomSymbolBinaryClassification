@@ -75,7 +75,7 @@ class MMLRestroomSign(Dataset):
         else:
             val_root = os.path.join(data_root, "val")
             self.symbol_pairs = self.read_from_disk(val_root)
-        self.device = device
+        self.device = "cpu"
         self.clip_model, self.preprocess = clip.load('ViT-B/32', device)
 
         self.male_text_feature = self.get_clip_text_feature("restroom sign of male")
