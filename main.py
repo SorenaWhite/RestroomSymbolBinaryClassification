@@ -136,7 +136,7 @@ class Trainer:
             loss = self.criterion(preds, target_tensor)
 
             loss_value.update(loss.item())
-            acc_value.update(accuracy(preds, target_tensor))
+            acc_value.update(accuracy(preds, target_tensor)[0])
             loss.backward()
             self.optimizer.step()
             self.optimizer.zero_grad()
@@ -167,7 +167,7 @@ class Trainer:
             loss = criterion(preds, target_tensor)
 
             loss_value.update(loss.item())
-            acc_value.update(accuracy(preds, target_tensor))
+            acc_value.update(accuracy(preds, target_tensor)[0])
 
         print(f"[Eval] Loss: {loss_value.avg}, Acc: {acc_value.avg}")
         loss_value.reset()
