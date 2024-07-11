@@ -1,3 +1,4 @@
+import clip
 import torch
 import argparse
 import numpy as np
@@ -78,8 +79,21 @@ class Trainer:
         np.random.seed(seed)
         cudnn.benchmark = True
 
-        dataset_train = MMLRestroomSign(args.data_root, build_transform(args, is_train=True), self.device, is_train=True)
-        dataset_val = MMLRestroomSign(args.data_root, build_transform(args, is_train=False), self.device, is_train=False)
+        clip_model, preprocess = clip.load('ViT-B/32', self.device)
+        dataset_train = MMLRestroomSign(
+            data_root=args.data_root,
+            transform=build_transform(args, is_train=True),
+            device=self.device,
+            clip_model=clip_model,
+            preprocess=preprocess,
+            is_train=True)
+        dataset_val = MMLRestroomSign(
+            data_root=args.data_root,
+            transform=build_transform(args, is_train=False),
+            device=self.device,
+            clip_model=clip_model,
+            preprocess=preprocess,
+            is_train=False)
 
         self.data_loader_train = DataLoader(
             dataset_train,

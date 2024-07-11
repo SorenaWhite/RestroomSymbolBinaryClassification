@@ -68,15 +68,16 @@ def build_transform(args, is_train):
 
 
 class MMLRestroomSign(Dataset):
-    def __init__(self, data_root, transform, device, is_train=True):
+    def __init__(self, data_root, transform, device, clip_model, preprocess, is_train=True):
         if is_train:
             train_root = os.path.join(data_root, "train")
             self.symbol_pairs = self.read_from_disk(train_root)
         else:
             val_root = os.path.join(data_root, "val")
             self.symbol_pairs = self.read_from_disk(val_root)
-        self.device = "cpu"
-        self.clip_model, self.preprocess = clip.load('ViT-B/32', device)
+        self.device = device
+        self.clip_model = clip_model
+        self.preprocess = preprocess
 
         self.male_text_feature = self.get_clip_text_feature("restroom sign of male")
         self.female_text_feature = self.get_clip_text_feature("restroom sign of female")
@@ -98,12 +99,12 @@ class MMLRestroomSign(Dataset):
 
     def get_clip_image_feature(self, image_path):
         with torch.no_grad():
-            image_input = self.preprocess(Image.open(image_path)).unsqueeze(0)#.to(self.device)
+            image_input = self.preprocess(Image.open(image_path)).unsqueeze(0).to(self.device)
             image_feature = self.clip_model.encode_image(image_input)
             return image_feature
 
     def get_clip_text_feature(self, text):
-        text_input = clip.tokenize(text)#.to(self.device)
+        text_input = clip.tokenize(text).to(self.device)
         text_feature = self.clip_model.encode_text(text_input)
         return text_feature
 
