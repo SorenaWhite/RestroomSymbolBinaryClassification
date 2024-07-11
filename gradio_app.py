@@ -38,7 +38,7 @@ def inference(im_pil):
 demo = gr.Interface(fn=inference,
                     inputs=gr.inputs.Image(type="pil"),
                     outputs=gr.outputs.Label(num_top_classes=1),
-                    examples=[["data/644_0.png", "data/644_1.png"], ["data/648_0.png", "data/648_1.png"]],
+                    examples=[["data/644_0.png"], ["data/644_1.png"], ["data/648_0.png"], ["data/648_1.png"]],
                     title='Inference demo'
                     )
 
