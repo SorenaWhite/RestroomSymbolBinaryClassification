@@ -171,7 +171,7 @@ class Trainer:
 
             loss = criterion(preds, target_tensor)
             print(preds, target_tensor, loss.item())
-            
+
             loss_value.update(loss.item())
             acc_value.update(accuracy(preds, target_tensor)[0])
 
