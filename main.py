@@ -115,7 +115,6 @@ class Trainer:
 
         self.optimizer = optim.Adam(self.model.parameters())
 
-        num_training_steps_per_epoch = len(dataset_train)
         self.lr_scheduler = optim.lr_scheduler.ExponentialLR(self.optimizer, gamma=0.9)
 
         self.criterion = LabelSmoothingCrossEntropy(smoothing=args.smoothing)
@@ -132,6 +131,7 @@ class Trainer:
             image_tensor = image_tensor.to(self.device)
             text_tensor = text_tensor.to(self.device)
             target_tensor = target_tensor.to(self.device)
+            print(image_tensor.shape, text_tensor.shape, target_tensor.shape)
 
             preds = self.model(image_tensor, text_tensor)
 
