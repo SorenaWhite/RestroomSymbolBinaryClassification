@@ -132,9 +132,7 @@ class Trainer:
             text_tensor = text_tensor.squeeze(0).to(self.device)
             target_tensor = target_tensor.squeeze(0).to(self.device)
 
-            print(image_tensor.shape, text_tensor.shape)
             preds = self.model(image_tensor, text_tensor)
-            print(preds.shape, target_tensor.shape)
             loss = self.criterion(preds, target_tensor)
 
             loss_value.update(loss.item())
