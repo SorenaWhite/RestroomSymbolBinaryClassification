@@ -39,7 +39,7 @@ def str2bool(v):
 
 
 def get_args_parser():
-    parser = argparse.ArgumentParser('MobileMLP+LLM', add_help=False)
+    parser = argparse.ArgumentParser('MobileMLP+CLIP', add_help=False)
     # parser.add_argument('--exp_name', default="", type=str, help='experiments name')
 
     # Training parameters
